@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enggar Aouna Muharam - MI21A</title>
+</head>
+<body>
+    <h1>Klinik Avienca</h1>
+
+    <p>Berikut Adalah Daftar Pasien:</p>
+    <div style="margin: 20px auto;">
+    <input type="date" name="date" id="date">
+    <input type="text" id="name" placeholder="isi nama pasien disini">
+    <input type="text" id="age" placeholder="isi usia disini">
+    <select name="polies" id="polies">
+        <option value="">pilih</option>
+    </select>
+    <button id="btn" onclick="saveData()">simpan</button>
+    </div >
+    
+    <table  border="1" cellpadding="10" cellspacing="0" style="margin: 20px;">
+        <thead>
+            <th>NO</th>
+            <th>TANGGAL</th>
+            <th>NAMA</th>
+            <th>USIA</th>
+            <th>POLI</th>
+            <th colspan="2">ACTION</th>
+        </thead>
+        <tbody id="result"></tbody>
+    </table>
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        //EDIT
+        const editData = (id, date, name, age, poli) => {
+            document.getElementById("date").value = date;
+            document.getElementById("name").value = name;
+            document.getElementById("age").value = age;
+            document.getElementById("polies").value = poli;
+            document.getElementById("btn"). innerText = "update";
+            document.getElementById("btn").setAttribute("onclick", `updateData(${id})`);
+        };
+
+        const updateData = async (id) => {
+            let dateFrom = document.getElementById("date").value;
+            let nameForm = document.getElementById("name").value;
+            let ageForm = document.getElementById("age").value;
+            let poliesForm = document.getElementById("polies").value;
+            let text = `Betul data ${nameForm} akan diubah?`;
+            if (confirm(text) == true) {
+                await axios
+                    .patch(`http://localhost:3000/patients/${id}`, {
+                        date: dateFrom,
+                        name: nameForm,
+                        age: ageForm,
+                        poli: poliesForm,
+                    })
+                    .then((response) => {
+                        console.log(response);
+                    })
+                    .catch((error) => {
+                        console.log(error.message);
+                    });
+            }
+        };
+
+
+
+        //SAVE/SIMPAN DATA
+        const saveData = async () => {
+            let dateFrom = document.getElementById('date').value;
+            let nameForm = document.getElementById('name').value;
+            let ageForm = document.getElementById('age').value;
+            let poliesForm = document.getElementById('polies').value;
+            await axios.post(`http://localhost:3000/patients`, {
+                date: dateFrom,
+                name: nameForm,
+                age: ageForm,
+                poli: poliesForm
+            })
+                .then((response) => {
+                    console.log(response);
+                })
+                .catch((error) => {
+                    console.log(error.message)
+                });
+        }
+
+        // DELETE
+        const deleteData = async (id) => {
+        let text = `Apakah data ${id} akan dihapus?`;
+        if (confirm(text) == true) {
+            await axios
+            .delete(`http://localhost:3000/patients/${id}`)
+            .then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error.message);
+            });
+        } else {
+            console.log("Data tidak dihapus");
+        }
+        };
+
+
+        // MENGAMPILKAN DATA DARI DATABASE
+        const getData = async () => {
+            await axios.get(`http://localhost:3000/patients`)
+                .then((response) => {
+                    let bucket = ``;
+                    let patients = response.data;
+                    console.log(patients)
+                    if (patients.length > 0) {
+                        for (let i = 0; i < patients.length; i++) {
+                            bucket += `
+                            <tr>
+                            <td>${i + 1}</td>
+                            <td>${patients[i].date}</td>
+                            <td>${patients[i].name}</td>
+                            <td>${patients[i].age}</td>
+                            <td>${patients[i].poli}</td>
+                            <td>
+                                <button class="btn-edit" onclick="editData('${patients[i].id}', '${patients[i].date}','${patients[i].name}','${patients[i].age}','${patients[i].poli}')">Edit</button>
+                                </td>
+                            <td>
+                                <button onclick="deleteData(${patients[i].id})">Delete</button>
+                                </td>
+                            </tr>
+                            `
+                        }
+                    } else {
+                        bucket += `
+                            <tr>
+                            <td colspan="7" style="text-align: center">Data tidak ditemukan</td>
+                            </tr>   
+                        `
+                    }
+                    document.getElementById('result').innerHTML = bucket;
+                })
+                .catch((error) => {
+                    let bucket = `
+                <tr>
+                <td colspan="5" style="text-align: center">${error.messege}</td>
+                </tr>   
+            `
+                    document.getElementById('result').innerHTML = bucket;
+                });
+        };
+        getData();
+
+        const getDatapolies = async () => {
+            await axios.get(`http://localhost:3000/polies`)
+                .then((response) => {
+                    let bucket = ``;
+                    let polies = response.data;
+                    console.log(polies);
+                    if (polies.length > 0) {
+                        for (let i = 0; i < polies.length; i++) {
+                            bucket += `
+                                 <option>${polies[i].name}</option>
+                                `;
+                        }
+                    } else {
+                        bucket += `
+                                 <option>Data tidak ditemukan</option>
+                                `;
+                    }
+                    document.getElementById('polies').innerHTML = bucket;
+                })
+                .catch((error) => {
+                    let bucket = `
+                                 <option>${error.message}</option>
+                                `;
+                    document.getElementById('polies').innerHTML = bucket;
+                });
+        };
+
+        getDatapolies();
+    </script>
+</body>
+</html>

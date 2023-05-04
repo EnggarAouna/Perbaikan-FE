@@ -1,0 +1,25 @@
+{
+  "patients": [
+    {
+      "date": "2023-05-04",
+      "name": "Enggar Aouna Muharam",
+      "age": "20",
+      "poli": "polianak",
+      "id": 2
+    }
+  ],
+  "polies": [
+    {
+      "name": "poliumum",
+      "id": 1
+    },
+    {
+      "name": "poligigi",
+      "id": 2
+    },
+    {
+      "name": "polianak",
+      "id": 3
+    }
+  ]
+}
